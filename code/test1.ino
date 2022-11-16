@@ -1,16 +1,20 @@
 #include "RB_QMIND.h"
 
 RB_DcmotorOnBoard RB_DcmotorOnBoard;
-
+RB_Ultrasonic  ul(2);
+double ul_distance =0;
 RB_RGBLed RGBLED(2,2);
 RB_Buzzer Buzzer(4);
 
 
+
 int motorinit(){
     try{
-        RB_DcmotorOnBoard.run(90,-90);
+        RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(45);
+	    RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(-45);
         delay(500);
-        RB_DcmotorOnBoard.run(-90,90);
+        RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(45);
+	    RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(-45);
         return 0;
     }
     catch(){
@@ -20,6 +24,13 @@ int motorinit(){
 }
 
 void setup() {
+    ul.RB_Ultrasonic_SetRGB(0x40,0xA1,200,0,0);
+    delay(1000);
+    ul.RB_Ultrasonic_SetRGB(0x40,0xA1,0,200,0);
+    delay(1000);
+     ul.RB_Ultrasonic_SetRGB(0x40,0xA1,0,0,200);
+    delay(1000);  
+    ul.RB_Ultrasonic_SetRGB(0x40,0xA1,0,0,0);
 	Serial.begin(115200);
 
 	RB_DcmotorOnBoard.RB_DcmotorOnBoard_Init();
@@ -33,10 +44,13 @@ void setup() {
 
 	RGBLED.setColor(0, 173, 215, 218);
 	RGBLED.show();
-	Buzzer.tone(262, 500);
+	
 
 }
 
 void loop() {
+    ul_distance = ul.Uldistance();
+    Serial.println(ul_distance);
+    delay(500);
 
 }
