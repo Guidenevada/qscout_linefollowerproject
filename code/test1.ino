@@ -16,9 +16,10 @@ int tleft(){
   delay(400);
   RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
   RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
-  return 0;
   delay(500);
-}
+
+  return 0;
+}  
 int tright(){
   RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(-50);
   RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(50);
@@ -29,31 +30,46 @@ int tright(){
   return 0;
 }
 int moveobj(){
+  
   RB_DcmotorOnBoard.run(0,0);
   delay(1000);
+  RB_DcmotorOnBoard.run(-40,-40);
+  delay(200);
+  RB_DcmotorOnBoard.run(0,0);
+  delay(500);
   tleft();
-  if (ul_distance <= 20){
-    tright();
-    tright();
-  }
+  //delay(1000);
+  //tleft();
+  
+  //while (ul_distance <= 20)
+  //{
+  //  tleft();
+  //  delay(400);
+//
+  //}
   
   RB_DcmotorOnBoard.run(50,50);
-  delay(800);
+  delay(600);
   RB_DcmotorOnBoard.run(0,0);
   delay(500);
   tright();
+  
   RB_DcmotorOnBoard.run(50,50);
-  delay(800);
+  delay(1200);
   RB_DcmotorOnBoard.run(0,0);
-  delay(500);
   tright();
+  delay(500);
   RB_DcmotorOnBoard.run(50,50);
-  delay(800);
+
+  delay(500);
   RB_DcmotorOnBoard.run(0,0);
   delay(500);
   tleft();
+  
   return 0;
 }
+
+
 
 int getLineType (int line,int type){
   switch(type){
@@ -92,8 +108,7 @@ void setup() {
 	RB_DcmotorOnBoard.RB_DcmotorOnBoard_Init();
 	delay(500);
     
-	RGBLED.setColor(0, 173, 215, 218);
-	RGBLED.show();
+	
 }
 
 
@@ -101,47 +116,107 @@ void setup() {
 
 
 void loop() {
-    
+  	if (digitalRead(USER_KEY_Pin)==LOW){
+      moveobj();
+    }
+    RGBLED.setColor(0, 173, 215, 218);
+	  RGBLED.show();
+    int mem = 1;
     
     ul_distance = ul.Uldistance();
     Serial.println(ul_distance);
     
-    
-    if (ul_distance <= 20){
+    ul.RB_Ultrasonic_SetRGB(0X40, 0XA1, 245, 0, 201);
+    if (ul_distance <= 25){
       moveobj();
     }
-    else{
-        
-        
-        
-        Serial.println("There is an error in line follower");
-        
-    }
     if (getLineType(LineFollower_2.ReadSensors(),3)) { //bright ; bright
+    if (mem == 1){
+
+    
       RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(-45);
       RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(45);
       delay(100);
       RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
       RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
-	} 
-  if (getLineType(LineFollower_2.ReadSensors(),1)) { //dark ; bright
+    }
+    if (mem == 2){
+      RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(45);
+      RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(-45);
+      delay(100);
+      RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
+      RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
+    }
+    }
+
    
-    RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(45);
-    
+  //  if (getLineType(LineFollower_2.ReadSensors(),3)) { //bright ; bright
+  //    RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(-45);
+  //    RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(45);
+  //    //delay(100);
+  //    //RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
+  //    //RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
+	//} 
+ 
+  while(!(getLineType(LineFollower_2.ReadSensors(),0))){
+    	if (digitalRead(USER_KEY_Pin)==LOW){
+        moveobj();
+      }
+    if (ul_distance <= 25){
+      moveobj();
+    }
+    if (getLineType(LineFollower_2.ReadSensors(),3)) { //bright ; bright
+      if (mem == 1){
 
-    
-	} 
-  if (getLineType(LineFollower_2.ReadSensors(),2)) { //bright ; dark
+      
+        RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(-45);
+        RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(45);
+        delay(100);
+        RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
+        RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
+      }
+      if (mem == 2){
+        RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(45);
+        RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(-45);
+        delay(100);
+        RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
+        RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
+      }
+  } 
+  if (getLineType(LineFollower_2.ReadSensors(),2)) { //dark ; bright
+    RGBLED.setColor(2, 255, 0, 0);
+    RGBLED.show();
+    RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
+    RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
+    //delay(500);
     RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(45);
+    RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
+    mem = 2;
+    
+  
 
     
+	  } 
+    if (getLineType(LineFollower_2.ReadSensors(),1)) { //bright ; dark
+      RGBLED.setColor(1, 255, 0, 0);
+      RGBLED.show();
+      RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
+      RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
+      //delay(500);
+      RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
+      RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(45);
+      mem = 1;
 
 
-	}
-  if (getLineType(LineFollower_2.ReadSensors(),0)) //dark ; dark
-  {
-    RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(50);
-	  RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(50);
+
+
+	  }
+
   }
-
+  if (getLineType(LineFollower_2.ReadSensors(),0)){
+  RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(45);
+  RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(45);
+  }
+  //RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
+  //RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
 }
