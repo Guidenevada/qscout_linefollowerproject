@@ -3,17 +3,17 @@
 
 uint8_t val;
 RB_DcmotorOnBoard RB_DcmotorOnBoard;
-RB_Ultrasonic  ul(3);
+RB_Ultrasonic ul(2);
 double ul_distance =0;
 RB_RGBLed RGBLED(2,2);
 RB_Buzzer Buzzer(4);
-
-RB_LineFollower LineFollower_2(2);
+//int start = 0;
+RB_LineFollower LineFollower_2(1);
 
 int tleft(){
-  RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(50);
-  RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(-50);
-  delay(400);
+  RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(55);
+  RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(-55);
+  delay(350);
   RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
   RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
   delay(500);
@@ -21,16 +21,16 @@ int tleft(){
   return 0;
 }  
 int tright(){
-  RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(-50);
-  RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(50);
-  delay(400);
+  RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(-55);
+  RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(55);
+  delay(350);
   RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
   RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
   delay(500);
   return 0;
 }
+
 int moveobj(){
-  
   RB_DcmotorOnBoard.run(0,0);
   delay(1000);
   RB_DcmotorOnBoard.run(-40,-40);
@@ -40,14 +40,12 @@ int moveobj(){
   tleft();
   //delay(1000);
   //tleft();
-  
   //while (ul_distance <= 20)
   //{
   //  tleft();
   //  delay(400);
 //
   //}
-  
   RB_DcmotorOnBoard.run(50,50);
   delay(600);
   RB_DcmotorOnBoard.run(0,0);
@@ -98,16 +96,22 @@ int getLineType (int line,int type){
 
 void setup() {
     ul.RB_Ultrasonic_SetRGB(0x40,0xA1,200,0,0);
-    delay(1000);
+    delay(100);
     ul.RB_Ultrasonic_SetRGB(0x40,0xA1,0,200,0);
-    delay(1000);
+    delay(100);
      ul.RB_Ultrasonic_SetRGB(0x40,0xA1,0,0,200);
-    delay(1000);  
+    delay(100);  
     ul.RB_Ultrasonic_SetRGB(0x40,0xA1,0,0,0);
 	Serial.begin(115200);
 	RB_DcmotorOnBoard.RB_DcmotorOnBoard_Init();
-	delay(500);
-    
+	//delay(500);
+  //while (start == 0){
+  //  RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
+  //  RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
+  //  if (digitalRead(USER_KEY_Pin)==LOW){
+  //    start = 1;
+  //  }
+  //}
 	
 }
 
@@ -116,6 +120,7 @@ void setup() {
 
 
 void loop() {
+  
   	if (digitalRead(USER_KEY_Pin)==LOW){
       moveobj();
     }
@@ -127,10 +132,11 @@ void loop() {
     Serial.println(ul_distance);
     
     ul.RB_Ultrasonic_SetRGB(0X40, 0XA1, 245, 0, 201);
-    if (ul_distance <= 25){
+    if (ul_distance <= 30){
       moveobj();
     }
     if (getLineType(LineFollower_2.ReadSensors(),3)) { //bright ; bright
+    ul_distance = ul.Uldistance();
     if (mem == 1){
 
     
@@ -159,13 +165,19 @@ void loop() {
 	//} 
  
   while(!(getLineType(LineFollower_2.ReadSensors(),0))){
+    ul_distance = ul.Uldistance();
     	if (digitalRead(USER_KEY_Pin)==LOW){
         moveobj();
       }
-    if (ul_distance <= 25){
+      Serial.println(ul_distance);
+    if (ul_distance <= 30){
       moveobj();
     }
     if (getLineType(LineFollower_2.ReadSensors(),3)) { //bright ; bright
+    ul_distance = ul.Uldistance();
+      if (ul_distance <= 30){
+        moveobj();
+      }
       if (mem == 1){
 
       
@@ -184,6 +196,8 @@ void loop() {
       }
   } 
   if (getLineType(LineFollower_2.ReadSensors(),2)) { //dark ; bright
+  ul_distance = ul.Uldistance();
+    mem = 2;
     RGBLED.setColor(2, 255, 0, 0);
     RGBLED.show();
     RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
@@ -191,13 +205,14 @@ void loop() {
     //delay(500);
     RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(45);
     RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(0);
-    mem = 2;
     
   
-
     
 	  } 
     if (getLineType(LineFollower_2.ReadSensors(),1)) { //bright ; dark
+    ul_distance = ul.Uldistance();
+    
+      mem = 1;
       RGBLED.setColor(1, 255, 0, 0);
       RGBLED.show();
       RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
@@ -205,7 +220,7 @@ void loop() {
       //delay(500);
       RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(0);
       RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(45);
-      mem = 1;
+      
 
 
 
@@ -214,6 +229,7 @@ void loop() {
 
   }
   if (getLineType(LineFollower_2.ReadSensors(),0)){
+    ul_distance = ul.Uldistance();
   RB_DcmotorOnBoard.RB_DcmotorOnBoardM1_Run(45);
   RB_DcmotorOnBoard.RB_DcmotorOnBoardM2_Run(45);
   }
